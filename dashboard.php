@@ -1,12 +1,10 @@
 <?php
 session_start();
 require_once 'database.php';
+require_once 'auth.php';
 
-// Check if user is logged in and is admin
-if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
-    header("Location: login.php");
-    exit();
-}
+// Check if user is admin
+requireAdmin();
 
 $user = $_SESSION['user'];
 

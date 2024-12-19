@@ -6,18 +6,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = $_POST['email'];
     $password = $_POST['password'];
 
-    // Hard-coded admin credentials
-    if ($email === "admin@admin.com" && $password === "admin123") {
-        $_SESSION['user'] = [
-            'id_user' => 0,
-            'nom_user' => 'Admin',
-            'email' => 'admin@admin.com',
-            'role' => 'admin'
-        ];
-        header("Location: dashboard.php");
-        exit();
-    }
-
     try {
         $stmt = $conn->prepare("SELECT * FROM users WHERE email = :email AND password = :password");
         $stmt->bindParam(':email', $email);
