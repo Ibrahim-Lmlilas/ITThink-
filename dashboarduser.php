@@ -81,6 +81,10 @@ $total_projects = count($projects);
                     <i class="fas fa-project-diagram mr-3"></i>
                     <span>Projects</span>
                 </a>
+                <a href="#" class="flex items-center px-6 py-3 text-gray-400 hover:bg-gray-800">
+                    <i class="fas fa-laptop-code mr-3"></i>
+                    <span>Freelancers</span>
+                </a>
                 <a href="logout.php" class="flex items-center px-6 py-3 text-red-400 hover:bg-gray-800">
                     <i class="fas fa-sign-out-alt mr-3"></i>
                     <span>Logout</span>

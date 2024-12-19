@@ -230,7 +230,7 @@ $freelancers = $freelancers_stmt->fetchAll(PDO::FETCH_ASSOC);
                                 <tr class="hover:bg-gray-50">
                                     <td class="px-6 py-4">
                                         <div class="font-medium text-gray-900">
-                                            <?php echo htmlspecialchars($freelancer['name']); ?>
+                                       <?php echo htmlspecialchars($freelancer['name']); ?>
                                         </div>
                                     </td>
                                     <td class="px-6 py-4">
