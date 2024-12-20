@@ -29,16 +29,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
-// Get categories
-$cat_stmt = $conn->prepare("SELECT * FROM Categories");
-$cat_stmt->execute();
-$categories = $cat_stmt->fetchAll(PDO::FETCH_ASSOC);
-
 // Get user's projects
 $proj_stmt = $conn->prepare("SELECT p.*, c.category_name FROM Projects p LEFT JOIN Categories c ON p.category_id = c.category_id WHERE p.id_user = :id_user");
 $proj_stmt->bindParam(':id_user', $user['id_user']);
 $proj_stmt->execute();
 $projects = $proj_stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Get categories
+$cat_stmt = $conn->prepare("SELECT * FROM Categories");
+$cat_stmt->execute();
+$categories = $cat_stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
@@ -72,10 +72,6 @@ $projects = $proj_stmt->fetchAll(PDO::FETCH_ASSOC);
                     <i class="fas fa-home"></i>
                     <span>Dashboard</span>
                 </a>
-                <a href="#" class="flex items-center space-x-2 px-4 py-2.5 rounded-lg text-gray-400 hover:bg-[#252d4a] transition-all">
-                    <i class="fas fa-project-diagram"></i>
-                    <span>Projects</span>
-                </a>
                 <a href="logout.php" class="flex items-center space-x-2 px-4 py-2.5 rounded-lg text-red-400 hover:bg-[#252d4a] transition-all">
                     <i class="fas fa-sign-out-alt"></i>
                     <span>Logout</span>
@@ -107,6 +103,15 @@ $projects = $proj_stmt->fetchAll(PDO::FETCH_ASSOC);
                     <?php 
                     echo $_SESSION['error'];
                     unset($_SESSION['error']);
+                    ?>
+                </div>
+            <?php endif; ?>
+
+            <?php if (isset($_SESSION['success'])): ?>
+                <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded-r">
+                    <?php 
+                    echo $_SESSION['success'];
+                    unset($_SESSION['success']);
                     ?>
                 </div>
             <?php endif; ?>
@@ -180,21 +185,19 @@ $projects = $proj_stmt->fetchAll(PDO::FETCH_ASSOC);
                             <div>
                                 <label class="block text-sm font-medium text-gray-700" for="category_id">Category</label>
                                 <select id="category_id" name="category_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring focus:ring-green-200" required>
+                                    <option value="">Select a category</option>
                                     <?php foreach ($categories as $category): ?>
-                                        <option value="<?php echo $category['category_id']; ?>"><?php echo htmlspecialchars($category['category_name']); ?></option>
+                                        <option value="<?php echo $category['category_id']; ?>">
+                                            <?php echo htmlspecialchars($category['category_name']); ?>
+                                        </option>
                                     <?php endforeach; ?>
                                 </select>
                             </div>
-                        </div>
-                        <div class="mt-5 sm:mt-6 flex justify-end space-x-2">
-                            <button type="button" onclick="document.getElementById('createProjectModal').classList.add('hidden')" 
-                                    class="inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:text-sm">
-                                Cancel
-                            </button>
-                            <button type="submit"
-                                    class="inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:text-sm">
-                                Create Project
-                            </button>
+                            <div class="flex justify-end">
+                                <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-all">
+                                    Create Project
+                                </button>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -213,35 +216,32 @@ $projects = $proj_stmt->fetchAll(PDO::FETCH_ASSOC);
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
-                    <form action="edit_operations.php" method="POST">
+                    <form id="editProjectForm" method="POST" action="edit_project.php">
                         <input type="hidden" id="edit_project_id" name="project_id">
                         <div class="space-y-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700" for="edit_title">Title</label>
-                                <input type="text" id="edit_title" name="title" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200" required>
+                                <input type="text" id="edit_title" name="title" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring focus:ring-green-200" required>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700" for="edit_description">Description</label>
-                                <textarea id="edit_description" name="description" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200" required></textarea>
+                                <textarea id="edit_description" name="description" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring focus:ring-green-200" required></textarea>
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700" for="edit_category">Category</label>
-                                <select id="edit_category" name="category_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200" required>
+                                <label class="block text-sm font-medium text-gray-700" for="edit_category_id">Category</label>
+                                <select id="edit_category_id" name="category_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring focus:ring-green-200" required>
                                     <?php foreach ($categories as $category): ?>
-                                        <option value="<?php echo $category['category_id']; ?>"><?php echo htmlspecialchars($category['category_name']); ?></option>
+                                        <option value="<?php echo $category['category_id']; ?>">
+                                            <?php echo htmlspecialchars($category['category_name']); ?>
+                                        </option>
                                     <?php endforeach; ?>
                                 </select>
                             </div>
-                        </div>
-                        <div class="mt-5 sm:mt-6 flex justify-end space-x-2">
-                            <button type="button" onclick="document.getElementById('editProjectModal').classList.add('hidden')" 
-                                    class="inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:text-sm">
-                                Cancel
-                            </button>
-                            <button type="submit"
-                                    class="inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:text-sm">
-                                Update Project
-                            </button>
+                            <div class="flex justify-end">
+                                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all">
+                                    Update Project
+                                </button>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -254,8 +254,15 @@ $projects = $proj_stmt->fetchAll(PDO::FETCH_ASSOC);
         document.getElementById('edit_project_id').value = projectId;
         document.getElementById('edit_title').value = title;
         document.getElementById('edit_description').value = description;
-        document.getElementById('edit_category').value = categoryId;
+        document.getElementById('edit_category_id').value = categoryId;
         document.getElementById('editProjectModal').classList.remove('hidden');
+    }
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+        if (event.target.classList.contains('modal')) {
+            event.target.classList.add('hidden');
+        }
     }
     </script>
 </body>

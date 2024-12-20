@@ -29,6 +29,34 @@ if (isset($_POST['delete_freelancer'])) {
     $stmt->execute();
 }
 
+if (isset($_POST['delete_category'])) {
+    $category_id = $_POST['category_id'];
+    try {
+        $stmt = $conn->prepare("DELETE FROM Categories WHERE category_id = :id");
+        $stmt->bindParam(':id', $category_id);
+        $stmt->execute();
+        header("Location: dashboard.php#categories");
+        exit();
+    } catch(PDOException $e) {
+        echo "Error: " . $e->getMessage();
+    }
+}
+
+if (isset($_POST['add_category'])) {
+    $new_category_name = trim($_POST['new_category_name']);
+    if (!empty($new_category_name)) {
+        try {
+            $stmt = $conn->prepare("INSERT INTO Categories (category_name) VALUES (:name)");
+            $stmt->bindParam(':name', $new_category_name);
+            $stmt->execute();
+            header("Location: dashboard.php#categories");
+            exit();
+        } catch(PDOException $e) {
+            echo "Error: " . $e->getMessage();
+        }
+    }
+}
+
 // Fetch data
 $users = $conn->query("SELECT * FROM users WHERE role != 'admin'")->fetchAll(PDO::FETCH_ASSOC);
 $projects = $conn->query("SELECT p.*, u.nom_user, c.category_name FROM Projects p LEFT JOIN users u ON p.id_user = u.id_user LEFT JOIN Categories c ON p.category_id = c.category_id")->fetchAll(PDO::FETCH_ASSOC);
@@ -68,6 +96,10 @@ $categories = $conn->query("SELECT * FROM Categories")->fetchAll(PDO::FETCH_ASSO
                 <a href="#freelancers" class="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700">
                     <i class="fas fa-laptop-code mr-3"></i>
                     <span>Freelancers</span>
+                </a>
+                <a href="#categories" class="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700">
+                    <i class="fas fa-tags mr-3"></i>
+                    <span>Categories</span>
                 </a>
                 <a href="logout.php" class="flex items-center px-4 py-2 text-red-400 hover:bg-gray-700">
                     <i class="fas fa-sign-out-alt mr-3"></i>
@@ -197,6 +229,43 @@ $categories = $conn->query("SELECT * FROM Categories")->fetchAll(PDO::FETCH_ASSO
                     </table>
                 </div>
             </div>
+
+            <!-- Categories Section -->
+            <div id="categories" class="bg-gray-800 rounded-lg shadow-lg mb-8 gap-10">
+                <div class="p-4 border-b border-gray-700 flex justify-between items-center">
+                    <h2 class="text-xl font-bold text-white">Categories</h2>
+                    <button onclick="showAddCategoryModal()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
+                        <i class="fas fa-plus mr-2"></i>Add Category
+                    </button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-900">
+                            <tr>
+                                <th class="px-4 py-2 text-left text-gray-400">ID</th>
+                                <th class="px-4 py-2 text-left text-gray-400">Category Name</th>
+                                <th class="px-4 py-2 text-left text-gray-400">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($categories as $category): ?>
+                            <tr class="border-t border-gray-700">
+                                <td class="px-4 py-2 text-gray-300"><?php echo htmlspecialchars($category['category_id']); ?></td>
+                                <td class="px-4 py-2 text-gray-300"><?php echo htmlspecialchars($category['category_name']); ?></td>
+                                <td class="px-4 py-2">
+                                    <form method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this category?');">
+                                        <input type="hidden" name="category_id" value="<?php echo $category['category_id']; ?>">
+                                        <button type="submit" name="delete_category" class="text-red-500 hover:text-red-700">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -232,6 +301,31 @@ $categories = $conn->query("SELECT * FROM Categories")->fetchAll(PDO::FETCH_ASSO
         </div>
     </div>
 
+    <!-- Add Category Modal -->
+    <div id="addCategoryModal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-white">Add New Category</h3>
+                <button onclick="closeModal('addCategoryModal')" class="text-gray-500 hover:text-gray-400">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form method="POST" class="space-y-4">
+                <div>
+                    <label class="block text-gray-400 mb-2">Category Name</label>
+                    <input type="text" name="new_category_name" required 
+                           class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white">
+                </div>
+                <div class="flex justify-end">
+                    <button type="submit" name="add_category" 
+                            class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
+                        Add Category
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         function openEditModal(type, id, ...args) {
             const modal = document.getElementById(`edit${type.charAt(0).toUpperCase() + type.slice(1)}Modal`);
@@ -249,11 +343,15 @@ $categories = $conn->query("SELECT * FROM Categories")->fetchAll(PDO::FETCH_ASSO
             document.getElementById(modalId).style.display = 'none';
         }
 
+        function showAddCategoryModal() {
+            document.getElementById('addCategoryModal').style.display = 'block';
+        }
+
         window.onclick = function(event) {
             if (event.target.classList.contains('modal')) {
                 event.target.style.display = 'none';
             }
-        }
+        };
     </script>
 </body>
 </html>
