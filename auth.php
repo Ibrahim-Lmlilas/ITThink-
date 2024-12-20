@@ -13,11 +13,7 @@ function requireAdmin() {
         header("Location: login.php");
         exit();
     }
-    
-    if (!isAdmin()) {
-        header("Location: dashboarduser.php");
-        exit();
-    }
+
 }
 
 function requireLogin() {

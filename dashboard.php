@@ -98,9 +98,6 @@ $categories = $conn->query("SELECT * FROM Categories")->fetchAll(PDO::FETCH_ASSO
                                 <td class="px-4 py-2 text-gray-300"><?php echo htmlspecialchars($user['nom_user']); ?></td>
                                 <td class="px-4 py-2 text-gray-300"><?php echo htmlspecialchars($user['email']); ?></td>
                                 <td class="px-4 py-2">
-                                    <button onclick="openEditModal('user', '<?php echo $user['id_user']; ?>', '<?php echo htmlspecialchars($user['nom_user']); ?>', '<?php echo htmlspecialchars($user['email']); ?>')" class="text-blue-400 hover:text-blue-300 mr-2">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
                                     <form method="POST" class="inline" onsubmit="return confirm('Are you sure?');">
                                         <input type="hidden" name="user_id" value="<?php echo $user['id_user']; ?>">
                                         <button type="submit" name="delete_user" class="text-red-400 hover:text-red-300">
@@ -187,9 +184,6 @@ $categories = $conn->query("SELECT * FROM Categories")->fetchAll(PDO::FETCH_ASSO
                                     <?php endforeach; ?>
                                 </td>
                                 <td class="px-4 py-2">
-                                    <button onclick="openEditModal('freelancer', '<?php echo $freelancer['id']; ?>', '<?php echo htmlspecialchars($freelancer['name']); ?>', '<?php echo htmlspecialchars($freelancer['skills']); ?>')" class="text-blue-400 hover:text-blue-300 mr-2">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
                                     <form method="POST" class="inline" onsubmit="return confirm('Are you sure?');">
                                         <input type="hidden" name="freelancer_id" value="<?php echo $freelancer['id']; ?>">
                                         <button type="submit" name="delete_freelancer" class="text-red-400 hover:text-red-300">
@@ -207,27 +201,6 @@ $categories = $conn->query("SELECT * FROM Categories")->fetchAll(PDO::FETCH_ASSO
     </div>
 
     <!-- Edit Modals -->
-    <div id="editUserModal" class="modal">
-        <div class="modal-content">
-            <h2 class="text-xl font-bold text-white mb-4">Edit User</h2>
-            <form action="edit_operations.php" method="POST">
-                <input type="hidden" name="user_id" id="editUserId">
-                <div class="mb-4">
-                    <label class="block text-gray-300 mb-2">Name</label>
-                    <input type="text" id="editUserName" name="nom_user" class="w-full bg-gray-700 text-white px-3 py-2 rounded">
-                </div>
-                <div class="mb-4">
-                    <label class="block text-gray-300 mb-2">Email</label>
-                    <input type="email" id="editUserEmail" name="email" class="w-full bg-gray-700 text-white px-3 py-2 rounded">
-                </div>
-                <div class="flex justify-end">
-                    <button type="button" onclick="closeModal('editUserModal')" class="bg-gray-700 text-gray-300 px-4 py-2 rounded mr-2">Cancel</button>
-                    <button type="submit" name="edit_user" class="bg-blue-600 text-white px-4 py-2 rounded">Save</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
     <div id="editProjectModal" class="modal">
         <div class="modal-content">
             <h2 class="text-xl font-bold text-white mb-4">Edit Project</h2>
@@ -259,42 +232,15 @@ $categories = $conn->query("SELECT * FROM Categories")->fetchAll(PDO::FETCH_ASSO
         </div>
     </div>
 
-    <div id="editFreelancerModal" class="modal">
-        <div class="modal-content">
-            <h2 class="text-xl font-bold text-white mb-4">Edit Freelancer</h2>
-            <form action="edit_operations.php" method="POST">
-                <input type="hidden" name="freelancer_id" id="editFreelancerId">
-                <div class="mb-4">
-                    <label class="block text-gray-300 mb-2">Name</label>
-                    <input type="text" id="editFreelancerName" name="name" class="w-full bg-gray-700 text-white px-3 py-2 rounded">
-                </div>
-                <div class="mb-4">
-                    <label class="block text-gray-300 mb-2">Skills (comma-separated)</label>
-                    <input type="text" id="editFreelancerSkills" name="skills" class="w-full bg-gray-700 text-white px-3 py-2 rounded">
-                </div>
-                <div class="flex justify-end">
-                    <button type="button" onclick="closeModal('editFreelancerModal')" class="bg-gray-700 text-gray-300 px-4 py-2 rounded mr-2">Cancel</button>
-                    <button type="submit" name="edit_freelancer" class="bg-blue-600 text-white px-4 py-2 rounded">Save</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
     <script>
         function openEditModal(type, id, ...args) {
             const modal = document.getElementById(`edit${type.charAt(0).toUpperCase() + type.slice(1)}Modal`);
             document.getElementById(`edit${type.charAt(0).toUpperCase() + type.slice(1)}Id`).value = id;
             
-            if (type === 'user') {
-                document.getElementById('editUserName').value = args[0];
-                document.getElementById('editUserEmail').value = args[1];
-            } else if (type === 'project') {
+            if (type === 'project') {
                 document.getElementById('editProjectTitle').value = args[0];
                 document.getElementById('editProjectDescription').value = args[1];
                 document.getElementById('editProjectCategory').value = args[2];
-            } else if (type === 'freelancer') {
-                document.getElementById('editFreelancerName').value = args[0];
-                document.getElementById('editFreelancerSkills').value = args[1];
             }
             modal.style.display = 'block';
         }
